@@ -107,6 +107,8 @@ FrontEnd application : [Modular Monolith With DDD: FrontEnd React application](h
 
 [10. Inspirations and Recommendations](#10-inspirations-and-recommendations)
 
+[11. Product Details and Order Details Modules](#11-product-details-and-order-details-modules)
+
 ## 1. Introduction
 
 ### 1.1 Purpose of this Repository
@@ -2306,3 +2308,109 @@ The project is under [MIT license](https://opensource.org/licenses/MIT).
 - ["Versioning in an Event Sourced System"](https://leanpub.com/esversioning) book, Greg Young
 - [Hands-On-Domain-Driven-Design-with-.NET-Core](https://github.com/PacktPublishing/Hands-On-Domain-Driven-Design-with-.NET-Core) GH repository, Alexey Zimarev
 - [EventSourcing.NetCore](https://github.com/oskardudycz/EventSourcing.NetCore) GH repository, Oskar Dudycz
+
+## 11. Product Details and Order Details Modules
+
+This section documents the Product Details and Order Details modules that have been integrated into the modular monolith application. These modules provide standalone CRUD functionality with file-based JSON storage.
+
+### 11.1 Product Details Module
+
+The Product Details module manages product information with full CRUD operations. It uses file-based JSON storage for data persistence.
+
+**Module Location:** `src/Modules/ProductDetails/`
+
+**API Endpoints:**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/Product` | Get all products |
+| GET | `/api/Product/{id}` | Get product by ID |
+| POST | `/api/Product` | Create a new product |
+| PUT | `/api/Product/{id}` | Update an existing product |
+| DELETE | `/api/Product/{id}` | Delete a product |
+
+**Product Entity Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| Id | Guid | Unique identifier |
+| Name | string | Product name (required, max 200 chars) |
+| Description | string | Product description (max 2000 chars) |
+| Price | decimal | Product price (required, must be > 0) |
+| Category | string | Product category (max 100 chars) |
+| StockQuantity | int | Available stock quantity |
+| SKU | string | Stock Keeping Unit (max 50 chars) |
+| IsActive | bool | Whether the product is active |
+| CreatedAt | DateTime | Creation timestamp (UTC) |
+| UpdatedAt | DateTime? | Last update timestamp (UTC) |
+
+For detailed documentation, see [Product Details README](src/Modules/ProductDetails/README.md).
+
+### 11.2 Order Details Module
+
+The Order Details module provides order management functionality with CRUD operations. It uses file-based JSON storage and integrates with the Product Details module through product references.
+
+**Module Location:** `src/Modules/Orders/`
+
+**API Endpoints:**
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/orders` | Get all orders |
+| GET | `/api/orders/{id}` | Get order by ID |
+| GET | `/api/orders/customer/{customerId}` | Get orders by customer ID |
+| POST | `/api/orders` | Create a new order |
+| PUT | `/api/orders/{id}` | Update an existing order |
+| DELETE | `/api/orders/{id}` | Delete an order |
+
+**Order Entity Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| Id | Guid | Unique identifier |
+| OrderDate | DateTime | Date when the order was placed |
+| CustomerId | Guid | Customer identifier |
+| CustomerName | string | Customer name |
+| Items | List<OrderItem> | List of order items |
+| TotalAmount | decimal | Calculated total |
+| Status | OrderStatus | Current order status |
+| ShippingAddress | string? | Shipping address |
+| Notes | string? | Additional notes |
+| CreatedAt | DateTime | Creation timestamp |
+| UpdatedAt | DateTime? | Last update timestamp |
+
+**Order Status Values:** Pending, Confirmed, Processing, Shipped, Delivered, Cancelled
+
+For detailed documentation, see [Order Details README](src/Modules/Orders/README.md).
+
+### 11.3 Module Registration
+
+Both modules are registered in the application startup:
+
+**Product Details Module** (using IServiceCollection extension):
+```csharp
+services.AddProductDetailsModule();
+```
+
+**Order Details Module** (using Autofac):
+```csharp
+containerBuilder.RegisterModule(new OrdersAutofacModule());
+```
+
+### 11.4 Data Storage
+
+Both modules use file-based JSON storage located in the `Data/` directory:
+- Products: `{AppDomain.CurrentDomain.BaseDirectory}/Data/products.json`
+- Orders: `{AppDomain.CurrentDomain.BaseDirectory}/Data/orders.json`
+
+The storage implementations include thread-safe file operations using SemaphoreSlim.
+
+### 11.5 Running Module Tests
+
+```bash
+# Product Details Tests
+dotnet test src/Modules/ProductDetails/Tests/CompanyName.MyMeetings.Modules.ProductDetails.Tests
+
+# Order Details Tests
+dotnet test src/Modules/Orders/Tests/UnitTests/CompanyName.MyMeetings.Modules.Orders.UnitTests.csproj
+```

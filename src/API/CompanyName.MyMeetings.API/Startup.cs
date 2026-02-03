@@ -6,6 +6,7 @@ using CompanyName.MyMeetings.API.Configuration.Extensions;
 using CompanyName.MyMeetings.API.Configuration.Validation;
 using CompanyName.MyMeetings.API.Modules.Administration;
 using CompanyName.MyMeetings.API.Modules.Meetings;
+using CompanyName.MyMeetings.API.Modules.Orders;
 using CompanyName.MyMeetings.API.Modules.Payments;
 using CompanyName.MyMeetings.API.Modules.UserAccess;
 using CompanyName.MyMeetings.BuildingBlocks.Application;
@@ -14,6 +15,7 @@ using CompanyName.MyMeetings.BuildingBlocks.Infrastructure.Emails;
 using CompanyName.MyMeetings.Modules.Administration.Infrastructure.Configuration;
 using CompanyName.MyMeetings.Modules.Meetings.Infrastructure.Configuration;
 using CompanyName.MyMeetings.Modules.Payments.Infrastructure.Configuration;
+using CompanyName.MyMeetings.Modules.ProductDetails;
 using CompanyName.MyMeetings.Modules.Registrations.Infrastructure.Configuration;
 using CompanyName.MyMeetings.Modules.UserAccess.Infrastructure.Configuration;
 using CompanyName.MyMeetings.Modules.UserAccess.Infrastructure.Configuration.Identity;
@@ -77,6 +79,8 @@ namespace CompanyName.MyMeetings.API
             });
 
             services.AddScoped<IAuthorizationHandler, HasPermissionAuthorizationHandler>();
+
+            services.AddProductDetailsModule();
         }
 
         public void ConfigureContainer(ContainerBuilder containerBuilder)
@@ -85,6 +89,7 @@ namespace CompanyName.MyMeetings.API
             containerBuilder.RegisterModule(new AdministrationAutofacModule());
             containerBuilder.RegisterModule(new UserAccessAutofacModule());
             containerBuilder.RegisterModule(new PaymentsAutofacModule());
+            containerBuilder.RegisterModule(new OrdersAutofacModule());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
