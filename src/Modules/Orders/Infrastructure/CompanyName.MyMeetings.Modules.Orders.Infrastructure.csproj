@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Application\CompanyName.MyMeetings.Modules.Orders.Application.csproj" />
+    <ProjectReference Include="..\Domain\CompanyName.MyMeetings.Modules.Orders.Domain.csproj" />
+  </ItemGroup>
+</Project>
