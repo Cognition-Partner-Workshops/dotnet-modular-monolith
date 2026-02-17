@@ -11,7 +11,7 @@ services:
     networks:
       - starfish-crm-network
     environment:
-      - Meetings_MeetingsConnectionString=Server=mymeetingsdb,1433;Database=MyMeetings;User=sa;Password=Test@12345;Encrypt=False;
+      - Meetings_MeetingsConnectionString=Server=mymeetingsdb,1433;Database=MyMeetings;User=sa;Password=${SA_PASSWORD};Encrypt=False;
     depends_on:
       - migrator
     restart: on-failure
@@ -23,6 +23,8 @@ services:
       - 1445:1433
     networks:
       - starfish-crm-network
+    environment:
+      - SA_PASSWORD=${SA_PASSWORD}
 
   migrator:
     container_name: mymeetings_db_migrator
@@ -32,7 +34,7 @@ services:
     networks:
       - starfish-crm-network
     environment:
-      - ASPNETCORE_MyMeetings_IntegrationTests_ConnectionString=Server=mymeetingsdb,1433;Database=MyMeetings;User=sa;Password=Test@12345;Encrypt=False;
+      - ASPNETCORE_MyMeetings_IntegrationTests_ConnectionString=Server=mymeetingsdb,1433;Database=MyMeetings;User=sa;Password=${SA_PASSWORD};Encrypt=False;
     command:
       [
         "./wait-for-it.sh",
