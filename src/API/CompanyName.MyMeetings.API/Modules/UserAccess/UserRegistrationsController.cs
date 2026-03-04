@@ -8,17 +8,32 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyName.MyMeetings.API.Modules.UserAccess
 {
+    /// <summary>
+    /// Controller for managing user registrations.
+    /// Provides endpoints for new user sign-up and registration confirmation.
+    /// These endpoints are publicly accessible (no authentication required).
+    /// </summary>
     [Route("userAccess/[controller]")]
     [ApiController]
     public class UserRegistrationsController : ControllerBase
     {
         private readonly IRegistrationsModule _registrationsModule;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserRegistrationsController"/> class.
+        /// </summary>
+        /// <param name="registrationsModule">The registrations module used to execute commands.</param>
         public UserRegistrationsController(IRegistrationsModule registrationsModule)
         {
             _registrationsModule = registrationsModule;
         }
 
+        /// <summary>
+        /// Registers a new user account. This endpoint is publicly accessible.
+        /// </summary>
+        /// <param name="request">The request containing the new user's registration details.</param>
+        /// <returns>An OK result if the registration was successfully submitted.</returns>
+        /// <response code="200">The user registration was successfully submitted.</response>
         [NoPermissionRequired]
         [AllowAnonymous]
         [HttpPost("")]
@@ -36,6 +51,12 @@ namespace CompanyName.MyMeetings.API.Modules.UserAccess
             return Ok();
         }
 
+        /// <summary>
+        /// Confirms a pending user registration. This endpoint is publicly accessible.
+        /// </summary>
+        /// <param name="userRegistrationId">The unique identifier of the user registration to confirm.</param>
+        /// <returns>An OK result if the registration was successfully confirmed.</returns>
+        /// <response code="200">The user registration was successfully confirmed.</response>
         [NoPermissionRequired]
         [AllowAnonymous]
         [HttpPatch("{userRegistrationId}/confirm")]

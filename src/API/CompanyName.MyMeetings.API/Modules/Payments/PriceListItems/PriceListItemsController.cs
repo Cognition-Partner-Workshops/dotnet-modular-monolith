@@ -9,17 +9,31 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyName.MyMeetings.API.Modules.Payments.PriceListItems
 {
+    /// <summary>
+    /// Controller for managing subscription price list items.
+    /// Provides endpoints to create, query, activate, deactivate, and update price list items.
+    /// </summary>
     [ApiController]
     [Route("api/payments/priceListItems")]
     public class PriceListItemsController : ControllerBase
     {
         private readonly IPaymentsModule _paymentsModule;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PriceListItemsController"/> class.
+        /// </summary>
+        /// <param name="paymentsModule">The payments module used to execute commands and queries.</param>
         public PriceListItemsController(IPaymentsModule paymentsModule)
         {
             _paymentsModule = paymentsModule;
         }
 
+        /// <summary>
+        /// Retrieves a price list item by country, category, and period type.
+        /// </summary>
+        /// <param name="request">The query parameters including country code, category code, and period type code.</param>
+        /// <returns>The price list item matching the specified criteria.</returns>
+        /// <response code="200">Returns the matching price list item.</response>
         [HttpGet]
         [HasPermission(PaymentsPermissions.GetPriceListItem)]
         [ProducesResponseType(typeof(PriceListItemMoneyValueDto), StatusCodes.Status200OK)]
@@ -33,6 +47,12 @@ namespace CompanyName.MyMeetings.API.Modules.Payments.PriceListItems
             return Ok(priceListItem);
         }
 
+        /// <summary>
+        /// Creates a new price list item for a subscription type, country, and category.
+        /// </summary>
+        /// <param name="request">The request containing the price list item details.</param>
+        /// <returns>An OK result if the price list item was successfully created.</returns>
+        /// <response code="200">The price list item was successfully created.</response>
         [HttpPost]
         [HasPermission(PaymentsPermissions.CreatePriceListItem)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -48,6 +68,12 @@ namespace CompanyName.MyMeetings.API.Modules.Payments.PriceListItems
             return Ok();
         }
 
+        /// <summary>
+        /// Activates a price list item, making it available for use.
+        /// </summary>
+        /// <param name="priceListItemId">The unique identifier of the price list item to activate.</param>
+        /// <returns>An OK result if the price list item was successfully activated.</returns>
+        /// <response code="200">The price list item was successfully activated.</response>
         [HttpPatch("{priceListItemId}/activate")]
         [HasPermission(PaymentsPermissions.ActivatePriceListItem)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -58,6 +84,12 @@ namespace CompanyName.MyMeetings.API.Modules.Payments.PriceListItems
             return Ok();
         }
 
+        /// <summary>
+        /// Deactivates a price list item, removing it from active use.
+        /// </summary>
+        /// <param name="priceListItemId">The unique identifier of the price list item to deactivate.</param>
+        /// <returns>An OK result if the price list item was successfully deactivated.</returns>
+        /// <response code="200">The price list item was successfully deactivated.</response>
         [HttpPatch("{priceListItemId}/deactivate")]
         [HasPermission(PaymentsPermissions.DeactivatePriceListItem)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -68,6 +100,12 @@ namespace CompanyName.MyMeetings.API.Modules.Payments.PriceListItems
             return Ok();
         }
 
+        /// <summary>
+        /// Updates the attributes of an existing price list item.
+        /// </summary>
+        /// <param name="request">The request containing the updated price list item attributes.</param>
+        /// <returns>An OK result if the price list item attributes were successfully updated.</returns>
+        /// <response code="200">The price list item attributes were successfully updated.</response>
         [HttpPut]
         [HasPermission(PaymentsPermissions.ChangePriceListItemAttributes)]
         [ProducesResponseType(StatusCodes.Status200OK)]
