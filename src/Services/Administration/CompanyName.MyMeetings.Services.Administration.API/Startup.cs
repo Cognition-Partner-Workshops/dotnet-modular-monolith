@@ -129,6 +129,8 @@ namespace CompanyName.MyMeetings.Services.Administration.API
                 executionContextAccessor,
                 _logger,
                 eventsBus);
+
+            eventsBus.StartConsuming();
         }
     }
 }
