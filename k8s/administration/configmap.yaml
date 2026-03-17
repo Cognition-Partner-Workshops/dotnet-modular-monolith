@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: administration-config
+  namespace: mymeetings
+  labels:
+    app: administration-service
+data:
+  aws-region: "us-east-1"
+  aspnetcore-environment: "Production"
+  logging-level-default: "Information"
+  logging-level-microsoft: "Warning"

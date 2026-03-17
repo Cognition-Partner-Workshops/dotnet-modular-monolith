@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: administration-service
+  namespace: mymeetings
+  labels:
+    app: administration-service
+    component: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: administration-service
+  template:
+    metadata:
+      labels:
+        app: administration-service
+        component: api
+    spec:
+      containers:
+        - name: administration-service
+          image: REGISTRY/administration-service:latest
+          ports:
+            - containerPort: 80
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: administration-config
+            - secretRef:
+                name: administration-secrets
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            - name: Administration_ConnectionStrings__AdministrationConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: administration-secrets
+                  key: db-connection-string
+            - name: Administration_Aws__Region
+              valueFrom:
+                configMapKeyRef:
+                  name: administration-config
+                  key: aws-region
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 12
+      restartPolicy: Always

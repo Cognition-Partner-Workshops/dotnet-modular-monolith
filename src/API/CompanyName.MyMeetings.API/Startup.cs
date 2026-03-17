@@ -11,10 +11,14 @@ using CompanyName.MyMeetings.API.Modules.UserAccess;
 using CompanyName.MyMeetings.BuildingBlocks.Application;
 using CompanyName.MyMeetings.BuildingBlocks.Domain;
 using CompanyName.MyMeetings.BuildingBlocks.Infrastructure.Emails;
+using CompanyName.MyMeetings.BuildingBlocks.Infrastructure.EventBus;
 using CompanyName.MyMeetings.Modules.Administration.Infrastructure.Configuration;
+using CompanyName.MyMeetings.Modules.Administration.IntegrationEvents.MeetingGroupProposals;
 using CompanyName.MyMeetings.Modules.Meetings.Infrastructure.Configuration;
+using CompanyName.MyMeetings.Modules.Meetings.IntegrationEvents;
 using CompanyName.MyMeetings.Modules.Payments.Infrastructure.Configuration;
 using CompanyName.MyMeetings.Modules.Registrations.Infrastructure.Configuration;
+using CompanyName.MyMeetings.Modules.Registrations.IntegrationEvents;
 using CompanyName.MyMeetings.Modules.UserAccess.Infrastructure.Configuration;
 using CompanyName.MyMeetings.Modules.UserAccess.Infrastructure.Configuration.Identity;
 using Hellang.Middleware.ProblemDetails;
@@ -145,18 +149,47 @@ namespace CompanyName.MyMeetings.API
 
             var emailsConfiguration = new EmailsConfiguration(_configuration["EmailsConfiguration:FromEmail"]);
 
+            var administrationEnabled = _configuration.GetValue("Modules:Administration:Enabled", true);
+            IEventsBus eventsBus = null;
+
+            if (!administrationEnabled)
+            {
+                var snsConfig = new SnsEventsBusConfiguration
+                {
+                    Region = _configuration["Aws:Region"] ?? "us-east-1",
+                    TopicArnPrefix = _configuration["Aws:SnsTopicArnPrefix"] ?? string.Empty,
+                    ServiceUrl = _configuration["Aws:ServiceUrl"]
+                };
+
+                // Events that need to be routed to/from the remote Administration service
+                var remoteEventTypes = new[]
+                {
+                    typeof(MeetingGroupProposedIntegrationEvent).FullName!,
+                    typeof(NewUserRegisteredIntegrationEvent).FullName!,
+                    typeof(MeetingGroupProposalAcceptedIntegrationEvent).FullName!
+                };
+
+                eventsBus = new SnsBridgeEventsBus(_logger, snsConfig, remoteEventTypes);
+
+                _loggerForApi.Information(
+                    "Administration module disabled in monolith. Using SNS/SQS bridge for inter-service communication.");
+            }
+
             MeetingsStartup.Initialize(
                 _configuration.GetConnectionString(MeetingsConnectionString),
                 executionContextAccessor,
                 _logger,
                 emailsConfiguration,
-                null);
+                eventsBus);
 
-            AdministrationStartup.Initialize(
-                _configuration.GetConnectionString(MeetingsConnectionString),
-                executionContextAccessor,
-                _logger,
-                null);
+            if (administrationEnabled)
+            {
+                AdministrationStartup.Initialize(
+                    _configuration.GetConnectionString(MeetingsConnectionString),
+                    executionContextAccessor,
+                    _logger,
+                    null);
+            }
 
             UserAccessStartup.Initialize(
                 _configuration.GetConnectionString(MeetingsConnectionString),
@@ -172,7 +205,7 @@ namespace CompanyName.MyMeetings.API
                 executionContextAccessor,
                 _logger,
                 emailsConfiguration,
-                null);
+                eventsBus);
 
             RegistrationsStartup.Initialize(
                 _configuration.GetConnectionString(MeetingsConnectionString),
@@ -182,6 +215,11 @@ namespace CompanyName.MyMeetings.API
                 _configuration["Security:TextEncryptionKey"],
                 null,
                 null);
+
+            if (eventsBus != null)
+            {
+                eventsBus.StartConsuming();
+            }
         }
     }
 }
