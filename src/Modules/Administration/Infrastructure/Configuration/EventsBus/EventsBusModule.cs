@@ -1,29 +1,12 @@
-﻿using Autofac;
-using CompanyName.MyMeetings.BuildingBlocks.Infrastructure.EventBus;
+﻿using CompanyName.MyMeetings.BuildingBlocks.Infrastructure.EventBus;
 
 namespace CompanyName.MyMeetings.Modules.Administration.Infrastructure.Configuration.EventsBus
 {
-    internal class EventsBusModule : Autofac.Module
+    internal class EventsBusModule : BuildingBlocks.Infrastructure.Configuration.EventsBusModule
     {
-        private readonly IEventsBus _eventsBus;
-
         public EventsBusModule(IEventsBus eventsBus)
+            : base(eventsBus)
         {
-            _eventsBus = eventsBus;
-        }
-
-        protected override void Load(ContainerBuilder builder)
-        {
-            if (_eventsBus != null)
-            {
-                builder.RegisterInstance(_eventsBus).SingleInstance();
-            }
-            else
-            {
-                builder.RegisterType<InMemoryEventBusClient>()
-                    .As<IEventsBus>()
-                    .SingleInstance();
-            }
         }
     }
 }
