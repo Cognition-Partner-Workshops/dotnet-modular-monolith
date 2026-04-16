@@ -2,6 +2,17 @@
 
 Full Modular Monolith .NET application with Domain-Driven Design approach.
 
+## Java/Spring Boot Port
+
+A Java/Spring Boot port of the **Administration** module is available in the [`java/`](java/) directory. It uses Spring Boot 3.x, JPA/Hibernate, and Maven, mirroring the same DDD architecture and `administration` database schema as the .NET implementation.
+
+```bash
+cd java
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 mvn clean test
+```
+
+See [`java/pom.xml`](java/pom.xml) for dependencies and project configuration.
+
 ## Announcement
 
 ![](docs/Images/glory_to_ukraine.jpg)
